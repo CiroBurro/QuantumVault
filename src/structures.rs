@@ -10,17 +10,17 @@ use colored::Colorize;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Login {
-    pub nome: String,
+    nome: String,
     username: String,
-    password_hash: String,
+    encrypted_password: Vec<u8>,
 }
 
 impl Login {
-    pub fn new(nome: String, username: String, hash: String) -> Self {
+    pub fn new(nome: String, username: String, passwd: Vec<u8>) -> Self {
         Login {
             nome,
             username,
-            password_hash: hash,
+            encrypted_password: passwd,
         }
     }
 }
@@ -36,6 +36,7 @@ pub struct Vault {
     pub username: String,
     master_password_hash: String,
     salt: String,
+    key: [u8; 32],
     logins: Vec<Login>,
     pub state: State,
 }
@@ -73,6 +74,7 @@ impl Vault {
             username: user.trim().to_string(),
             master_password_hash: m_p_h,
             salt: salt_str.to_string(),
+            key: key_derivation(password.trim(), salt).unwrap(),
             logins: Vec::new(),
             state: State::Locked,
         };
@@ -81,7 +83,7 @@ impl Vault {
     }
 
     pub fn unlock(&mut self){
-        for i in 0..5 {
+        for _ in 0..5 {
             clear_screen();
             let mut user = String::new();
             let mut passwd = String::new();
@@ -112,8 +114,8 @@ impl Vault {
                 self.state = State::Unlocked;
                 break;
             } else {
-                println!("Le credenziali non coincidono, hai ancora {} tentativi", 5 - 1 - i);
-                thread::sleep(time::Duration::from_secs(5));
+                println!("{}", "Le credenziali non coincidono".red().bold());
+                thread::sleep(time::Duration::from_secs(2));
                 continue;
             }
         }   
@@ -124,15 +126,81 @@ impl Vault {
         if logins.is_empty() {
             println!("{}", "Hai 0 password salvate".red().bold());
         } else {
-            println!("{}", "Password salvate:".blue().bold());
+            println!("{}", "Password salvate:".yellow().bold());
             for (i, nome) in logins.iter().enumerate() {
-                println!("{}. {}", (i + 1).to_string().blue().bold(), &nome)
+                println!("{}{} {}", (i + 1).to_string().blue().bold(), ".".blue().bold(), &nome)
             } 
         }
     }
+
+    pub fn aggiungi_login(&mut self) -> Result<(), String> {
+        clear_screen();
+        let mut nome = String::new();
+        let mut user: String = String::new();
+        let mut passwd: String = String::new();
+
+        println!("{}",  "Sblocca il tuo vault".yellow().bold());
+
+        println!("{}", "Inserisci il nome del servizio di cui vuoi salvare la password:".blue().bold());
+        print!("{}", "> ".green());
+        io::stdout().flush().expect("Errore nel flush del buffer".red().to_string().as_str());
+        io::stdin().read_line(&mut nome).expect("errore nella lettura del nome".red().to_string().as_str());
+
+        println!("{} {}", "Inserisci il nome utente per il servizio:".blue().bold(), &nome.blue().bold());
+        print!("{}", "> ".green());
+        io::stdout().flush().expect("Errore nel flush del buffer".red().to_string().as_str());
+        io::stdin().read_line(&mut user).expect("errore nella lettura del nome".red().to_string().as_str());
+
+        println!("{} {}", "Inserisci la password associata al nome utente:".blue().bold(), &user.blue().bold());
+        print!("{}", "> ".green());
+        io::stdout().flush().expect("Errore nel flush del buffer".red().to_string().as_str());
+        io::stdin().read_line(&mut passwd).expect("errore nella lettura del nome".red().to_string().as_str());
+
+        let password = encrypt_password(&self.key, passwd.trim())?;
+        let login = Login::new(nome.trim().to_string(), user.trim().to_string(), password);
+        Ok(self.logins.push(login))
+    }
+
+    pub fn rimuovi_login(&mut self) -> Result<(), String>{
+        clear_screen();
+        self.lista();
+        let mut input = String::new();
+        println!("{}", "Inserisci il numero corrispondente al nome del servizio da rimuovere:".blue().bold());
+        print!("{}", "> ".green());
+        io::stdout().flush().expect("Errore nel flush del buffer".red().to_string().as_str());
+        io::stdin().read_line(&mut input).expect("errore nella lettura del nome".red().to_string().as_str());
+
+        let index: usize = match input.trim().parse::<usize>() {
+            Ok(n) => n - 1,
+            Err(_) => return Err("Input non valido".red().to_string()),
+        };
+
+        input.clear();
+
+        println!("{} {}{}", "Sei sicuro di voler rimuovere:".blue().bold(), self.logins[index].nome.blue().bold(), "?(s/n)".blue().bold());
+        print!("{}", "> ".green());
+        io::stdout().flush().expect("Errore nel flush del buffer".red().to_string().as_str());
+        io::stdin().read_line(&mut input).expect("errore nella lettura del nome".red().to_string().as_str());
+
+        match input.trim().to_lowercase().as_str() {
+            "s" => {
+                self.state = State::Locked;
+                self.unlock();
+                self.logins.remove(index);
+                println!("{}", "Password eliminata con successo".green().bold());
+                thread::sleep(time::Duration::from_secs(2));
+            }
+            "n" => {
+                println!("{}", "Annullamento operazione in corso".red().bold());
+                thread::sleep(time::Duration::from_secs(2));
+            } 
+            _ => return Err("Input non valido".red().to_string())
+        }
+
+        Ok(())
+    }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
 pub enum Azione {
     AggiungiLogin,
     VisualizzaLogin,

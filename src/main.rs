@@ -15,12 +15,11 @@ fn menu(vault: &mut Vault) -> Result<(), String> {
     vault.lista();
     let azione = utils::opzioni()?;
     match azione {
-        Azione::AggiungiLogin => todo!(),
+        Azione::AggiungiLogin => vault.aggiungi_login(),
         Azione::VisualizzaLogin => todo!(),
-        Azione::RimuoviLogin => todo!(),
+        Azione::RimuoviLogin => vault.rimuovi_login(),
         Azione::Esci => process::exit(0)
     }
-    Ok(())
 }
 
 fn main() {
@@ -46,7 +45,7 @@ fn main() {
                     Ok(()) => (),
                     Err(e) => {
                         println!("{}", e);
-                        thread::sleep(time::Duration::from_secs(1));
+                        thread::sleep(time::Duration::from_secs(2));
                         continue;
                     }
                 }

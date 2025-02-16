@@ -8,7 +8,7 @@ pub fn clear_screen() {
 
 
 pub fn opzioni() -> Result<Azione, String> {
-    println!("{}", "A) Aggiungi password  B) Visualizza password  C) Rimuovi password  D) Esci".green().bold());
+    println!("\n{}", "A) Aggiungi password  B) Visualizza password  C) Rimuovi password  D) Esci".green().bold());
     let mut input = String::new();
     print!("Scegli un'opzione (A-B-C-D) > ");
     stdout().flush().expect("Errore nel flush del buffer".red().to_string().as_str());
