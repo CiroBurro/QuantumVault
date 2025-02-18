@@ -1,0 +1,12 @@
+/home/ciro/Documenti/QuantumVault/target/debug/deps/libcolored-da8e71e22dd3fc5a.rmeta: /home/ciro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/colored-3.0.0/src/lib.rs /home/ciro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/colored-3.0.0/src/color.rs /home/ciro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/colored-3.0.0/src/control.rs /home/ciro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/colored-3.0.0/src/error.rs /home/ciro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/colored-3.0.0/src/style.rs /home/ciro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/colored-3.0.0/src/customcolors.rs
+
+/home/ciro/Documenti/QuantumVault/target/debug/deps/libcolored-da8e71e22dd3fc5a.rlib: /home/ciro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/colored-3.0.0/src/lib.rs /home/ciro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/colored-3.0.0/src/color.rs /home/ciro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/colored-3.0.0/src/control.rs /home/ciro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/colored-3.0.0/src/error.rs /home/ciro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/colored-3.0.0/src/style.rs /home/ciro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/colored-3.0.0/src/customcolors.rs
+
+/home/ciro/Documenti/QuantumVault/target/debug/deps/colored-da8e71e22dd3fc5a.d: /home/ciro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/colored-3.0.0/src/lib.rs /home/ciro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/colored-3.0.0/src/color.rs /home/ciro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/colored-3.0.0/src/control.rs /home/ciro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/colored-3.0.0/src/error.rs /home/ciro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/colored-3.0.0/src/style.rs /home/ciro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/colored-3.0.0/src/customcolors.rs
+
+/home/ciro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/colored-3.0.0/src/lib.rs:
+/home/ciro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/colored-3.0.0/src/color.rs:
+/home/ciro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/colored-3.0.0/src/control.rs:
+/home/ciro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/colored-3.0.0/src/error.rs:
+/home/ciro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/colored-3.0.0/src/style.rs:
+/home/ciro/.cargo/registry/src/index.crates.io-6f17d22bba15001f/colored-3.0.0/src/customcolors.rs:
