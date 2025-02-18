@@ -16,9 +16,10 @@ fn menu(vault: &mut Vault) -> Result<(), String> {
     let azione = utils::opzioni()?;
     match azione {
         Azione::AggiungiLogin => vault.aggiungi_login(),
-        Azione::VisualizzaLogin => todo!(),
+        Azione::VisualizzaLogin => vault.visualizza_login(),
         Azione::RimuoviLogin => vault.rimuovi_login(),
-        Azione::Esci => process::exit(0)
+        Azione::Esci => process::exit(0),
+        _ => Err("Scelta non valida".to_string())
     }
 }
 

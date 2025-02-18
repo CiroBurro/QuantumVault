@@ -7,7 +7,7 @@ use argon2::{
 
 use aes_gcm::{
     aead::{Aead, AeadCore, KeyInit, OsRng},
-    Aes256Gcm, Nonce, Key
+    Aes256Gcm, Nonce
 };
 use colored::Colorize;
 

@@ -23,6 +23,17 @@ impl Login {
             encrypted_password: passwd,
         }
     }
+
+    pub fn display(&self, key: &[u8; 32]) -> Result<(), String>{
+        println!("{} {}", "Nome:".green().bold(), self.nome);
+        println!("{} {}", "Username:".green().bold(), self.username);
+        let password = match decrypt_password(key, self.encrypted_password.clone()) {
+            Ok(p ) => p,
+            Err(s) => return Err(s)
+        };
+        println!("{} {}", "Password:".green().bold(), password);
+        Ok(())
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -199,11 +210,35 @@ impl Vault {
 
         Ok(())
     }
+
+    pub fn visualizza_login(&mut self) -> Result<(), String> {
+        clear_screen();
+        self.lista();
+        let mut input = String::new();
+        println!("{}", "Inserisci il numero corrispondente al nome del servizio da visualizzare:".blue().bold());
+        print!("{}", "> ".green());
+        io::stdout().flush().expect("Errore nel flush del buffer".red().to_string().as_str());
+        io::stdin().read_line(&mut input).expect("errore nella lettura del nome".red().to_string().as_str());
+
+        let index: usize = match input.trim().parse::<usize>() {
+            Ok(n) => n - 1,
+            Err(_) => return Err("Input non valido".red().to_string()),
+        };
+        input.clear();
+        self.state = State::Locked;
+        self.unlock();
+        clear_screen();
+        self.logins[index].display(&self.key)?;
+        thread::sleep(time::Duration::from_secs(5));
+
+        Ok(())
+    }
 }
 
 pub enum Azione {
     AggiungiLogin,
     VisualizzaLogin,
     RimuoviLogin,
+    ModificaLogin,
     Esci,    
 }
