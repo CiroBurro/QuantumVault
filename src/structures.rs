@@ -1,6 +1,6 @@
 use crate::{
     encryption::*,
-    utils::{clear_screen, opzioni_2},
+    utils::{clear_screen, opzioni_2, salva_vault},
 };
 use argon2::password_hash::{rand_core::OsRng, SaltString};
 use cli_clipboard::{ClipboardContext, ClipboardProvider};
@@ -48,6 +48,7 @@ pub struct Vault {
     pub username: String,
     master_password_hash: String,
     salt: String,
+    #[serde(skip)]
     key: [u8; 32],
     logins: Vec<Login>,
     pub state: State,
@@ -158,8 +159,18 @@ impl Vault {
             };
 
             if passwd_hash == self.master_password_hash && user.trim() == self.username {
-                self.state = State::Unlocked;
-                break;
+                // Deriva la chiave dalla password quando serve
+                match key_derivation(passwd.trim(), SaltString::from_b64(&self.salt).unwrap()) {
+                    Ok(derived_key) => {
+                        self.key = derived_key;
+                        self.state = State::Unlocked;
+                        break;
+                    }
+                    Err(_) => {
+                        println!("{}", "Errore nella derivazione della chiave".red().bold());
+                        continue;
+                    }
+                }
             } else {
                 println!("{}", "Le credenziali non coincidono".red().bold());
                 thread::sleep(time::Duration::from_secs(2));
@@ -241,6 +252,9 @@ impl Vault {
     }
 
     pub fn rimuovi_login(&mut self) -> Result<(), String> {
+        if self.logins.is_empty() {
+            return Err("Non ci sono password salvate".red().to_string());
+        }
         clear_screen();
         self.lista();
         let mut input = String::new();
@@ -259,7 +273,12 @@ impl Vault {
             .expect("errore nella lettura del nome".red().to_string().as_str());
 
         let index: usize = match input.trim().parse::<usize>() {
-            Ok(n) => n - 1,
+            Ok(n) => {
+                if n - 1 >= self.logins.len() {
+                    return Err("Input non valido".red().to_string());
+                }
+                n - 1
+            },
             Err(_) => return Err("Input non valido".red().to_string()),
         };
 
@@ -298,6 +317,9 @@ impl Vault {
     }
 
     pub fn visualizza_login(&mut self) -> Result<(), String> {
+        if self.logins.is_empty() {
+            return Err("Non ci sono password salvate".red().to_string());
+        }
         clear_screen();
         self.lista();
         let mut input = String::new();
@@ -316,7 +338,13 @@ impl Vault {
             .expect("errore nella lettura del nome".red().to_string().as_str());
 
         let index: usize = match input.trim().parse::<usize>() {
-            Ok(n) => n - 1,
+            Ok(n) => {
+                if n - 1 < self.logins.len() {
+                    n - 1
+                } else {
+                    return Err("Input non valido".red().to_string());
+                }
+            },
             Err(_) => return Err("Input non valido".red().to_string()),
         };
         input.clear();
@@ -337,7 +365,10 @@ impl Vault {
                 Ok(())
             }
             Azione::TornaMenu => Ok(()),
-            Azione::Esci => process::exit(0),
+            Azione::Esci => {
+                salva_vault(&self)?;
+                process::exit(0)
+            },
             _ => Err("Scelta non valida".to_string()),
         }
     }

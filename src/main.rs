@@ -8,6 +8,7 @@ use colored::Colorize;
 use std::{process, thread, time};
 use structopt::StructOpt;
 use structures::*;
+use directories::BaseDirs;
 
 fn menu(vault: &mut Vault) -> Result<(), String> {
     utils::clear_screen();
@@ -22,21 +23,38 @@ fn menu(vault: &mut Vault) -> Result<(), String> {
         Azione::AggiungiLogin => vault.aggiungi_login(),
         Azione::VisualizzaLogin => vault.visualizza_login(),
         Azione::RimuoviLogin => vault.rimuovi_login(),
-        Azione::Esci => process::exit(0),
+        Azione::Esci => {
+            vault.state = State::Locked;
+            utils::salva_vault(&vault)?;
+            process::exit(0);
+        },
         _ => Err("Scelta non valida".to_string()),
     }
 }
 
+
 fn main() {
+    let base_dirs = BaseDirs::new().unwrap();
+    let path = base_dirs.data_local_dir().join(".password_manager");
     utils::clear_screen();
     let comando = Comando::from_args();
     let mut vault = match comando {
-        Comando::NuovoVault => Vault::new().unwrap_or_else(|e| {
+        Comando::NuovoVault => {
+            if path.exists() {
+                println!("{}", "Il vault esiste già".red().bold());
+                thread::sleep(time::Duration::from_secs(1));
+                process::exit(1);
+            }
+            Vault::new().unwrap_or_else(|e| {
             println!("{}\n", e);
             Vault::new().unwrap()
-        }),
+        })},
         Comando::Login => {
-            let _vault: Vault = todo!();
+            let vault = match utils::cariva_vault() {
+                Ok(v) => v,
+                Err(_) => Vault::new().unwrap(),
+            };
+            vault
         }
     };
 
