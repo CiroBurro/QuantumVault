@@ -324,7 +324,7 @@ impl Vault {
         self.unlock();
         clear_screen();
         self.logins[index].display(&self.key)?;
-        thread::sleep(time::Duration::from_secs(5));
+        //thread::sleep(time::Duration::from_secs(5));
 
         let azione = opzioni_2()?;
         match azione {
