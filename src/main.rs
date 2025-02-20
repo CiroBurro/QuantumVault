@@ -1,8 +1,10 @@
+// Moduli del progetto
 pub mod cli;
 pub mod encryption;
 pub mod structures;
 pub mod utils;
 
+// Importazioni necessarie
 use cli::Comando;
 use colored::Colorize;
 use std::{process, thread, time};
@@ -10,15 +12,26 @@ use structopt::StructOpt;
 use structures::*;
 use directories::BaseDirs;
 
+// Funzione per gestire il menu principale del vault
+// Mostra le opzioni disponibili e gestisce le azioni dell'utente
 fn menu(vault: &mut Vault) -> Result<(), String> {
+    // Pulisce lo schermo
     utils::clear_screen();
+    
+    // Stampa il messaggio di benvenuto
     println!(
         "{} {}\n",
         "Benvenuto".blue().bold(),
         vault.username.blue().bold()
     );
+    
+    // Mostra la lista dei login salvati
     vault.lista();
+    
+    // Ottiene l'azione scelta dall'utente
     let azione = utils::opzioni()?;
+    
+    // Gestisce l'azione scelta dall'utente
     match azione {
         Azione::AggiungiLogin => vault.aggiungi_login(),
         Azione::VisualizzaLogin => vault.visualizza_login(),
@@ -32,12 +45,20 @@ fn menu(vault: &mut Vault) -> Result<(), String> {
     }
 }
 
-
+// Funzione principale del programma
+// Gestisce l'inizializzazione del vault e il ciclo principale del programma
 fn main() {
+    // Ottiene la directory base per i dati locali
     let base_dirs = BaseDirs::new().unwrap();
     let path = base_dirs.data_local_dir().join(".password_manager");
+    
+    // Pulisce lo schermo
     utils::clear_screen();
+    
+    // Ottiene il comando passato dall'utente
     let comando = Comando::from_args();
+    
+    // Inizializza il vault in base al comando
     let mut vault = match comando {
         Comando::NuovoVault => {
             if path.exists() {
@@ -46,9 +67,10 @@ fn main() {
                 process::exit(1);
             }
             Vault::new().unwrap_or_else(|e| {
-            println!("{}\n", e);
-            Vault::new().unwrap()
-        })},
+                println!("{}\n", e);
+                Vault::new().unwrap()
+            })
+        },
         Comando::Login => {
             let vault = match utils::cariva_vault() {
                 Ok(v) => v,
@@ -71,8 +93,11 @@ fn main() {
             process::exit(0);
         }
     };
+    
+    // Imposta lo stato del vault come bloccato
     vault.state = State::Locked;
 
+    // Ciclo principale del programma
     loop {
         match vault.state {
             State::Locked => vault.unlock(),

@@ -3,6 +3,7 @@ use colored::Colorize;
 use std::{io::{stdin, stdout, Write}, fs};
 use directories::BaseDirs;
 
+// Funzione per pulire lo schermo
 pub fn clear_screen() {
     if cfg!(target_os = "windows") {
         print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
@@ -11,10 +12,11 @@ pub fn clear_screen() {
     }
 }
 
+// Funzione per ottenere l'azione scelta dall'utente nel menu principale
 pub fn opzioni() -> Result<Azione, String> {
     println!(
         "\n{}",
-        "A) Aggiungi password  B) Visualizza password  C) Rimuovi password  D) Esci"
+        "A) Aggiungi login  B) Visualizza login  C) Rimuovi login  D) Esci"
             .green()
             .bold()
     );
@@ -24,7 +26,7 @@ pub fn opzioni() -> Result<Azione, String> {
         .flush()
         .expect("Errore nel flush del buffer".red().to_string().as_str());
     stdin().read_line(&mut input).expect(
-        "errore nella lettura della password"
+        "errore nella lettura dell'input"
             .red()
             .to_string()
             .as_str(),
@@ -39,10 +41,11 @@ pub fn opzioni() -> Result<Azione, String> {
     }
 }
 
+// Funzione per ottenere l'azione scelta dall'utente nel menu secondario
 pub fn opzioni_2() -> Result<Azione, String> {
     println!(
         "\n{}",
-        "A) Modifica password  B) Copia password  C) Torna al menu  D) Esci"
+        "A) Modifica login  B) Copia password  C) Torna al menu  D) Esci"
             .green()
             .bold()
     );
@@ -52,7 +55,7 @@ pub fn opzioni_2() -> Result<Azione, String> {
         .flush()
         .expect("Errore nel flush del buffer".red().to_string().as_str());
     stdin().read_line(&mut input).expect(
-        "errore nella lettura della password"
+        "errore nella lettura dell'input"
             .red()
             .to_string()
             .as_str(),
@@ -67,6 +70,7 @@ pub fn opzioni_2() -> Result<Azione, String> {
     }
 }
 
+// Funzione per salvare il vault su disco
 pub fn salva_vault(vault: &Vault) -> Result<(), String> {
     let base_dirs = BaseDirs::new().unwrap();
     let path = base_dirs.data_local_dir().join(".password_manager");
@@ -75,6 +79,7 @@ pub fn salva_vault(vault: &Vault) -> Result<(), String> {
     Ok(())
 }
 
+// Funzione per caricare il vault da disco
 pub fn cariva_vault() -> Result<Vault, String> {
     let base_dirs = BaseDirs::new().unwrap();
     let path = base_dirs.data_local_dir().join(".password_manager");

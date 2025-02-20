@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 use std::io::Write;
 use std::{io, process, thread, time};
 
+// Struttura per rappresentare un login
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Login {
     nome: String,
@@ -17,6 +18,7 @@ pub struct Login {
 }
 
 impl Login {
+    // Crea un nuovo login
     pub fn new(nome: String, username: String, passwd: Vec<u8>) -> Self {
         Login {
             nome,
@@ -25,6 +27,7 @@ impl Login {
         }
     }
 
+    // Mostra i dettagli del login
     pub fn display(&self, key: &[u8; 32]) -> Result<(), String> {
         println!("{} {}", "Nome:".green().bold(), self.nome);
         println!("{} {}", "Username:".green().bold(), self.username);
@@ -37,12 +40,14 @@ impl Login {
     }
 }
 
+// Stato del vault
 #[derive(Serialize, Deserialize, Debug)]
 pub enum State {
     Locked,
     Unlocked,
 }
 
+// Struttura per rappresentare il vault
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Vault {
     pub username: String,
@@ -55,6 +60,7 @@ pub struct Vault {
 }
 
 impl Vault {
+    // Crea un nuovo vault
     pub fn new() -> Result<Self, String> {
         let mut user = String::new();
         let mut password = String::new();
@@ -118,6 +124,7 @@ impl Vault {
         Ok(vault)
     }
 
+    // Sblocca il vault
     pub fn unlock(&mut self) {
         for _ in 0..5 {
             clear_screen();
@@ -179,6 +186,7 @@ impl Vault {
         }
     }
 
+    // Mostra la lista dei login salvati
     pub fn lista(&self) {
         let logins: Vec<&str> = self.logins.iter().map(|l| l.nome.as_str()).collect();
         if logins.is_empty() {
@@ -196,6 +204,7 @@ impl Vault {
         }
     }
 
+    // Aggiunge un nuovo login al vault
     pub fn aggiungi_login(&mut self) -> Result<(), String> {
         clear_screen();
         let mut nome = String::new();
@@ -251,6 +260,7 @@ impl Vault {
         Ok(self.logins.push(login))
     }
 
+    // Rimuove un login dal vault
     pub fn rimuovi_login(&mut self) -> Result<(), String> {
         if self.logins.is_empty() {
             return Err("Non ci sono password salvate".red().to_string());
@@ -316,6 +326,7 @@ impl Vault {
         Ok(())
     }
 
+    // Visualizza un login salvato
     pub fn visualizza_login(&mut self) -> Result<(), String> {
         if self.logins.is_empty() {
             return Err("Non ci sono password salvate".red().to_string());
@@ -499,6 +510,7 @@ impl Vault {
     }
 }
 
+// Enum per rappresentare le azioni disponibili nel menu
 pub enum Azione {
     AggiungiLogin,
     VisualizzaLogin,

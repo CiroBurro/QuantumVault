@@ -2,6 +2,7 @@ use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "QuantumVault", about = "CLI Password Manager Quantico")]
+//sottocomandi del programma
 pub enum Comando {
     #[structopt(about = "Accedi a un vault creato in precedenza")]
     Login,

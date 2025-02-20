@@ -11,25 +11,29 @@ use aes_gcm::{
 };
 use colored::Colorize;
 
+// Funzione per generare l'hash di una password utilizzando Argon2 e un salt fornito
 pub fn hash_password(password: &str, salt: &SaltString) -> Result<String, argon2::password_hash::Error> {
     let argon2 = Argon2::default();
     let password_hash = argon2.hash_password(password.as_bytes(), salt)?.to_string();
     Ok(password_hash)
 }
 
+// Funzione per verificare una password rispetto a un hash fornito utilizzando Argon2
 pub fn verify_password(password: &str, hash: &str) -> Result<bool, argon2::password_hash::Error> {
     let argon2 = Argon2::default();
     let parsed_hash = PasswordHash::new(hash)?;
     Ok(argon2.verify_password(password.as_bytes(), &parsed_hash).is_ok())
 }
 
+// Funzione per derivare una chiave crittografica da una password e un salt utilizzando Argon2
 pub fn key_derivation(password: &str, salt: SaltString) -> Result<[u8; 32], argon2::password_hash::Error> {
     let mut output_key_material = [0u8; 32]; 
     Argon2::default().hash_password_into(password.as_bytes(), salt.decode_b64(&mut [0u8; 32]).unwrap(), &mut output_key_material)?;
     Ok(output_key_material)
 }
 
-pub fn encrypt_password(key: &[u8; 32], password: &str) -> Result<Vec<u8>, String>{
+// Funzione per criptare una password utilizzando AES-256-GCM e una chiave fornita
+pub fn encrypt_password(key: &[u8; 32], password: &str) -> Result<Vec<u8>, String> {
     let cipher = Aes256Gcm::new(key.into());
     let nonce = Aes256Gcm::generate_nonce(&mut OsRng);
     let ciphertext = cipher.encrypt(&nonce, password.as_bytes().as_ref()).map_err(|e| format!("Errore nella crittografia: {}", e.to_string().red().bold()))?;
@@ -37,9 +41,9 @@ pub fn encrypt_password(key: &[u8; 32], password: &str) -> Result<Vec<u8>, Strin
     combined.extend_from_slice(&nonce);
     combined.extend_from_slice(&ciphertext);
     Ok(combined)
-
 }
 
+// Funzione per decriptare una password utilizzando AES-256-GCM e una chiave fornita
 pub fn decrypt_password(key: &[u8; 32], combined: Vec<u8>) -> Result<String, String> {
     if combined.len() < 12 {
         return Err("Dato crittografato non valido".red().bold().to_string());
