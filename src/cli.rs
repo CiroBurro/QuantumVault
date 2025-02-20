@@ -8,4 +8,7 @@ pub enum Comando {
 
     #[structopt(about = "Crea un nuovo vault")]
     NuovoVault,
+
+    #[structopt(about = "Elimina il vault")]
+    EliminaVault,
 }

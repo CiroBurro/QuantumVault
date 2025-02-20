@@ -352,11 +352,133 @@ impl Vault {
         self.unlock();
         clear_screen();
         self.logins[index].display(&self.key)?;
-        //thread::sleep(time::Duration::from_secs(5));
 
         let azione = opzioni_2()?;
         match azione {
-            Azione::ModificaLogin => todo!(),
+            Azione::ModificaLogin => {
+                clear_screen();
+                self.logins[index].display(&self.key)?;
+                let mut input = String::new();
+                println!("{}", "Cosa vuoi modificare? (inserisci il numero)".blue().bold());
+                println!("{}", "1. Nome  2. Username  3. Password".blue().bold());
+                print!("{}", "> ".green());
+                io::stdout()
+                    .flush()
+                    .expect("Errore nel flush del buffer".red().to_string().as_str());
+                io::stdin().read_line(&mut input).expect(
+                    "errore nella lettura della password"
+                        .red()
+                        .to_string()
+                        .as_str(),
+                );
+                match input.trim().to_lowercase().as_str() {
+                    "1" => {
+                        let mut nome = String::new();
+                        println!("{}", "Inserisci il nuovo nome:".blue().bold());
+                        print!("{}", ">".green());
+                        io::stdout()
+                            .flush()
+                            .expect("Errore nel flush del buffer".red().to_string().as_str());
+                        io::stdin()
+                            .read_line(&mut nome)
+                            .expect("errore nella lettura del nome".red().to_string().as_str());
+                        
+                        input.clear();
+                        println!("{}", "Sei sicuro di voler modificare il nome? (s/n)".blue().bold());
+                        print!("{}", "> ".green());
+                        io::stdout()
+                            .flush()
+                            .expect("Errore nel flush del buffer".red().to_string().as_str());
+                        io::stdin()
+                            .read_line(&mut input)
+                            .expect("errore nella lettura dell'input".red().to_string().as_str());
+
+                        match input.trim().to_lowercase().as_str() {
+                            "s" => {
+                                self.logins[index].nome = nome.trim().to_string();
+                                println!("{}", "Nome modificato con successo".green().bold());
+                                thread::sleep(time::Duration::from_secs(2));
+                            },
+                            "n" => {
+                                println!("{}", "Annullamento operazione in corso".red().bold());
+                                thread::sleep(time::Duration::from_secs(2));
+                            },
+                            _ => return Err("Input non valido".red().to_string()),
+                        }
+
+                    },
+                    "2" => {
+                        let mut user = String::new();
+                        println!("{}", "Inserisci il nuovo username:".blue().bold());
+                        print!("{}", ">".green());
+                        io::stdout()
+                            .flush()
+                            .expect("Errore nel flush del buffer".red().to_string().as_str());
+                        io::stdin()
+                            .read_line(&mut user)
+                            .expect("errore nella lettura dello username".red().to_string().as_str());
+
+                        input.clear();
+                        println!("{}", "Sei sicuro di voler modificare lo username? (s/n)".blue().bold());
+                        print!("{}", "> ".green());
+                        io::stdout()
+                            .flush()
+                            .expect("Errore nel flush del buffer".red().to_string().as_str());
+                        io::stdin()
+                            .read_line(&mut input)
+                            .expect("errore nella lettura dell'input".red().to_string().as_str());
+
+                        match input.trim().to_lowercase().as_str() {
+                            "s" => {
+                                self.logins[index].username = user.trim().to_string();
+                                println!("{}", "Username modificato con successo".green().bold());
+                                thread::sleep(time::Duration::from_secs(2));
+                            },
+                            "n" => {
+                                println!("{}", "Annullamento operazione in corso".red().bold());
+                                thread::sleep(time::Duration::from_secs(2));
+                            },
+                            _ => return Err("Input non valido".red().to_string()),
+                        }
+                    },
+                    "3" => {
+                        let mut passwd = String::new();
+                        println!("{}", "Inserisci la nuova password:".blue().bold());
+                        print!("{}", ">".green());
+                        io::stdout()
+                            .flush()
+                            .expect("Errore nel flush del buffer".red().to_string().as_str());
+                        io::stdin()
+                            .read_line(&mut passwd)
+                            .expect("errore nella lettura della password".red().to_string().as_str());
+
+                        input.clear();
+                        println!("{}", "Sei sicuro di voler modificare la password? (s/n)".blue().bold());
+                        print!("{}", "> ".green());
+                        io::stdout()
+                            .flush()
+                            .expect("Errore nel flush del buffer".red().to_string().as_str());
+                        io::stdin()
+                            .read_line(&mut input)
+                            .expect("errore nella lettura dell'input".red().to_string().as_str());
+
+                        match input.trim().to_lowercase().as_str() {
+                            "s" => {
+                                self.logins[index].encrypted_password = encrypt_password(&self.key, passwd.trim())?;
+                                println!("{}", "Password modificata con successo".green().bold());
+                                thread::sleep(time::Duration::from_secs(2));
+                            },
+                            "n" => {
+                                println!("{}", "Annullamento operazione in corso".red().bold());
+                                thread::sleep(time::Duration::from_secs(2));
+                            },
+                            _ => return Err("Input non valido".red().to_string()),
+                        }
+                    },
+                    _ => return Err("Input non valido".red().to_string()),
+                }
+                Ok(())
+            },
             Azione::CopiaPassword => {
                 let mut ctx = ClipboardContext::new().unwrap();
                 let password =
@@ -364,8 +486,11 @@ impl Vault {
                 ctx.set_contents(password).unwrap();
                 Ok(())
             }
-            Azione::TornaMenu => Ok(()),
+            Azione::TornaMenu => {
+                salva_vault(&self)
+            },
             Azione::Esci => {
+                self.state = State::Locked;
                 salva_vault(&self)?;
                 process::exit(0)
             },

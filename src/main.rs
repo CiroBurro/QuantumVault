@@ -52,11 +52,26 @@ fn main() {
         Comando::Login => {
             let vault = match utils::cariva_vault() {
                 Ok(v) => v,
-                Err(_) => Vault::new().unwrap(),
+                Err(_) => {
+                    println!("{}", "Nessun vault trovato - Esegui 'quantumvault nuovo-vault'".red().bold());
+                    thread::sleep(time::Duration::from_secs(1));
+                    process::exit(1);
+                },
             };
             vault
         }
+        Comando::EliminaVault => {
+            if !path.exists() {
+                println!("{}", "Il vault non esiste".red().bold());
+                thread::sleep(time::Duration::from_secs(1));
+                process::exit(1);
+            }
+            std::fs::remove_file(path).unwrap();
+            println!("{}", "Vault eliminato".green().bold());
+            process::exit(0);
+        }
     };
+    vault.state = State::Locked;
 
     loop {
         match vault.state {
